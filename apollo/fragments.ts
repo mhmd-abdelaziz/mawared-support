@@ -85,3 +85,16 @@ export const AUTH_FRAGMENT = gql`
     has_temporary_password
   }
 `;
+
+export const PAGINATOR_FRAGMENT = gql`
+  fragment paginator on PaginatorInfo {
+    total
+    count
+    perPage
+    lastPage
+    lastItem
+    firstItem
+    currentPage
+    hasMorePages
+  }
+`;
