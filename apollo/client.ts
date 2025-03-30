@@ -1,15 +1,10 @@
-import {
-  from,
-  ApolloClient,
-  InMemoryCache,
-  createHttpLink,
-} from "@apollo/client";
 import { TOKEN_KEY } from "@/constants";
-// import { createUploadLink } from "apollo-upload-client";
+import { createUploadLink } from "apollo-upload-client";
+import { from, ApolloClient, InMemoryCache } from "@apollo/client";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { setContext } from "./../node_modules/@apollo/client/link/context";
 
-const httpLink = createHttpLink({
+const httpLink = createUploadLink({
   uri: process.env.EXPO_PUBLIC_API_URL + "/graphql",
 });
 
@@ -28,21 +23,21 @@ const authLink = setContext(async (_, { headers }) => {
 
 // const abortController = new AbortController();
 // const uploadLink = createUploadLink({
-//   // uri: process.env.EXPO_PUBLIC_API_URL + "/graphql",
-//   // fetchOptions: {
-//   //   signal: abortController.signal, // overwrite the default abort signal
-//   // },
-//   // credentials: "include",
+// uri: process.env.EXPO_PUBLIC_API_URL + "/graphql",
+// fetchOptions: {
+//   signal: abortController.signal, // overwrite the default abort signal
+// },
+// credentials: "include",
 // });
 
 export const client = new ApolloClient({
   link: from([authLink, httpLink]),
   cache: new InMemoryCache(),
-  // defaultOptions: {
-  //   watchQuery: {
-  //     fetchPolicy: "cache-and-network",
-  //   },
-  // },
+  defaultOptions: {
+    watchQuery: {
+      fetchPolicy: "cache-and-network",
+    },
+  },
 });
 
 // Auth helper functions

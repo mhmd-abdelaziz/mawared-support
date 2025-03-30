@@ -64,7 +64,10 @@ const Item = ({ item, theme }: Item) => {
   return (
     <Pressable
       onPress={() =>
-        router.push({ pathname: `/chat/[id]`, params: { id: item.id } })
+        router.push({
+          pathname: `/chat/[id]`,
+          params: { id: item.company_contact_id, title: item?.name },
+        })
       }
     >
       <ThemedView

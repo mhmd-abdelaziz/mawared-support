@@ -98,3 +98,19 @@ export const PAGINATOR_FRAGMENT = gql`
     hasMorePages
   }
 `;
+
+export const MESSAGE = gql`
+  fragment message on MessageData {
+    id
+    name
+    sender
+    status
+    content
+    saas_id
+    media_url
+    created_time
+    w_message_id
+    message_parent_id
+    company_contact_id
+  }
+`;

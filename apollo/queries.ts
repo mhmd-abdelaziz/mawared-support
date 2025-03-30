@@ -1,5 +1,5 @@
 import { gql } from "@apollo/client";
-import { PAGINATOR_FRAGMENT } from "./fragments";
+import { MESSAGE, PAGINATOR_FRAGMENT } from "./fragments";
 
 export const GET_CHATS = gql`
   query getChats($page: Int, $first: Int!, $companyId: ID) {
@@ -21,4 +21,23 @@ export const GET_CHATS = gql`
     }
   }
   ${PAGINATOR_FRAGMENT}
+`;
+
+export const GET_CHAT = gql`
+  query getChat($companyContactId: ID) {
+    chat: whatsAppMessagesBetweenClients(
+      type: private
+      companyContactId: $companyContactId
+    ) {
+      hasMorePage
+      data {
+        ...message
+      }
+    }
+    users: getSaasCanRepresent(companyContactId: $companyContactId) {
+      id
+      name
+    }
+  }
+  ${MESSAGE}
 `;

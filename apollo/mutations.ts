@@ -1,5 +1,5 @@
 import { gql } from "@apollo/client";
-import { AUTH_FRAGMENT } from "./fragments";
+import { AUTH_FRAGMENT, MESSAGE } from "./fragments";
 
 export const SIGN_IN = gql`
   mutation signIn(
@@ -24,4 +24,22 @@ export const SIGN_IN = gql`
     }
   }
   ${AUTH_FRAGMENT}
+`;
+
+export const SEND_MESSAGE = gql`
+  mutation sendMessage($input: SenderDataInput) {
+    sendMessage(input: $input) {
+      ...message
+    }
+  }
+  ${MESSAGE}
+`;
+
+export const REPLAY_MESSAGE = gql`
+  mutation replyMessage($input: ReplyDataInput) {
+    replyOnMessage(input: $input) {
+      ...message
+    }
+  }
+  ${MESSAGE}
 `;
