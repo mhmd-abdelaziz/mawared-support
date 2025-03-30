@@ -1,50 +1,82 @@
-# Welcome to your Expo app 👋
+# [MAWARED Support]
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Mawared Support is a real-time chat application designed to facilitate seamless communication between users and support teams. The application supports text, images, files, and audio messages, with features like message replies, swipe-to-reply, and real-time updates powered by Pusher.
 
-## Get started
+## Table of contents
 
-1. Install dependencies
+- [Features](#features)
+- [Technologies](#technologies-used)
+- [Prerequisites](#prerequisites)
+- [Installation](#installation)
+- [Commands](#commands)
+- [Docs](#docs)
 
-   ```bash
-   npm install
-   ```
+<br />
 
-2. Start the app
+## Features
 
-   ```bash
-    npx expo start
-   ```
+- **Real-Time Messaging**: Instant communication with real-time updates using Pusher.
+- **Rich Media Support**: Send and receive text, images, files, and audio messages.
+- **Reply Functionality**: Reply to specific messages, including text, images, files, and audio.
+- **Swipe-to-Reply**: Intuitive swipe gesture to reply to messages.
+- **Audio Playback**: Play voice notes with a visual waveform and playback controls.
+- **File Sharing**: Share and download files directly in the chat.
+- **Dark Mode Support**: Fully supports light and dark themes.
+- **Optimistic UI**: Messages appear instantly while waiting for server confirmation.
 
-In the output, you'll find options to open the app in a
+<br />
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+## Technologies Used
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+- **Frontend**: React Native with Expo
+- **Backend**: GraphQL API
+- **Real-Time Updates**: Pusher
+- **Media Handling**: `expo-av` for audio, `expo-image-picker` for images
+- **UI Components**: `react-native-gifted-chat`, `react-native-gesture-handler`
 
-## Get a fresh project
+<br />
 
-When you're ready, run:
+## Prerequisites
+
+- [Node version 18 or higher](https://nodejs.org/en/)
+
+- Yarn
+  ```bash
+  npm install -g yarn
+  ```
+
+<br />
+
+## Installation
+
+1- clone the project:
 
 ```bash
-npm run reset-project
+git clone https://github.com/mhmd-abdelaziz/mawared-support.git && cd mawared-support
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+2- Add environment constants:
 
-## Learn more
+```bash
+cp .env.example .env
+```
 
-To learn more about developing your project with Expo, look at the following resources:
+3- Install dependencies:
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+```bash
+yarn
+```
 
-## Join the community
+or
 
-Join our community of developers creating universal apps.
+```bash
+npm run install
+```
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+<br />
+
+## Commands
+
+- `yarn start` _OR_ `npm run start`: Runs the app in the development mode.
+- `yarn build` _OR_ `npm run build`: Builds the app for production to the `dist` folder.
+- `yarn preview` _OR_ `npm run preview`: Runs the app in the production mode.
