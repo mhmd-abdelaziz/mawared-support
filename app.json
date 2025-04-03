@@ -15,7 +15,8 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.mhmd_tarek.mawaredsupport"
     },
     "web": {
       "bundler": "metro",
@@ -36,6 +37,28 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "expo": {
+      "updates": {
+        "fallbackToCacheTimeout": 0
+      },
+      "android": {
+        "package": "com.mhmd_tarek.mawaredsupport"
+      }
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "427d03b5-09fc-4ee0-bddc-5ae56ed92ca4"
+      }
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/427d03b5-09fc-4ee0-bddc-5ae56ed92ca4"
     }
   }
 }
