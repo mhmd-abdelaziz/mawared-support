@@ -41,3 +41,15 @@ export const GET_CHAT = gql`
   }
   ${MESSAGE}
 `;
+
+export const GET_CONTACTS = gql`
+  query getContacts($companyId: ID) {
+    generatedContacts(companyId: $companyId) {
+      name
+      contactUser {
+        id
+        phone
+      }
+    }
+  }
+`;

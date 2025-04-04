@@ -34,6 +34,7 @@ import {
 import Pusher from "pusher-js";
 import { Audio } from "expo-av";
 import { Stack } from "expo-router";
+import { router } from "expo-router";
 import { ExternalLink } from "@/components";
 import { GET_CHAT } from "@/apollo/queries";
 import * as ImagePicker from "expo-image-picker";
@@ -191,7 +192,6 @@ const ChatScreen = () => {
 
     const channel = pusher.subscribe(`chat_${companyContactId}`);
     channel.bind("my-event", (newMessage: Message) => {
-      console.log(newMessage, messages);
 
       if (!sendLoading || !replyLoading) {
         const isMsgExist = messages?.find(
@@ -199,7 +199,6 @@ const ChatScreen = () => {
             msg?.w_message_id === newMessage?.w_message_id ||
             msg?._id === newMessage?.temp_message_id
         );
-        console.log(isMsgExist);
 
         if (isMsgExist) {
           setMessages((prev) =>
@@ -567,7 +566,6 @@ const ChatScreen = () => {
       </View>
     );
   };
-  console.log(replyingTo);
 
   const renderInputToolbar = (props: InputToolbarProps<IMessage>) => {
     const { text: color, secBackground: backgroundColor } = themeColors;
@@ -772,6 +770,14 @@ const ChatScreen = () => {
           title: title as string,
           headerTintColor: themeColors.tint,
           headerStyle: { backgroundColor: themeColors.background },
+          headerLeft: () => (
+            <TouchableOpacity
+              style={{ marginEnd: 30 }}
+              onPress={() => router.push("/(main)")}
+            >
+              <Ionicons name="arrow-back" size={24} color="#0084FF" />
+            </TouchableOpacity>
+          ),
         }}
       />
       <GiftedChat
