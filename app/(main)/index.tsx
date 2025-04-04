@@ -39,7 +39,7 @@ const Index = () => {
       </ThemedView>
       <FloatingButton
         iconName="add"
-        onPress={() => router.push("/startChat")}
+        onPress={() => router.push("./startChat")}
       />
     </>
   );
