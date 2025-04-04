@@ -1,5 +1,5 @@
 import { useAuth } from "@/hooks";
-import { ThemedText } from "@/components";
+import { Loader } from "@/components";
 import { Redirect, Stack } from "expo-router";
 
 export default function MainLayout() {
@@ -7,7 +7,7 @@ export default function MainLayout() {
 
   // You can keep the splash screen open, or render a loading screen like we do here.
   if (isLoading) {
-    return <ThemedText>Loading...</ThemedText>;
+    return <Loader screenLoader />;
   }
 
   // Only require authentication within the (app) group's layout as users

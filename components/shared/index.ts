@@ -1,3 +1,4 @@
+export { default as Loader } from './Loader';
 export { default as ThemedView } from './ThemedView';
 export { default as ThemedText } from './ThemedText';
 export { default as ExternalLink } from './ExternalLink';

@@ -5,6 +5,7 @@ import {
   TouchableOpacityProps,
 } from "react-native";
 import React from "react";
+import { THEME_COLOR } from "@/constants";
 import { Ionicons } from "@expo/vector-icons";
 
 interface FloatingButton extends TouchableOpacityProps {
@@ -42,7 +43,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#3F51B5",
+    backgroundColor: THEME_COLOR,
     shadowOffset: { width: 0, height: 2 },
   },
 });

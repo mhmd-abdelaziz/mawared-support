@@ -1,11 +1,4 @@
 import {
-  View,
-  FlatList,
-  StyleSheet,
-  useColorScheme,
-  ActivityIndicator,
-} from "react-native";
-import {
   ThemedText,
   ThemedView,
   ChatListItem,
@@ -16,9 +9,9 @@ import { router } from "expo-router";
 import { Styles } from "@/constants";
 import { useQuery } from "@apollo/client";
 import { GET_CHATS } from "@/apollo/queries";
+import { View, FlatList } from "react-native";
 
 const Index = () => {
-  const theme = useColorScheme() || "light";
   const { data, loading, refetch } = useQuery(GET_CHATS, {
     notifyOnNetworkStatusChange: true,
     variables: {
@@ -27,14 +20,6 @@ const Index = () => {
   });
 
   const chats = data?.chats?.data || [];
-
-  if (loading) {
-    return (
-      <ThemedView style={[Styles.screen, styles.center]}>
-        <ActivityIndicator size="large" color="#6200EE" />
-      </ThemedView>
-    );
-  }
 
   return (
     <>
@@ -61,11 +46,3 @@ const Index = () => {
 };
 
 export default Index;
-
-const styles = StyleSheet.create({
-  center: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-});
