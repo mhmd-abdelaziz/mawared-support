@@ -49,6 +49,7 @@ const Index = () => {
           renderItem={({ item }) => <Item theme={theme} item={item} />}
         />
       </ThemedView>
+      <FloatingButton iconName="add" onPress={() => router.push("/startChat")} />
     </>
   );
 };

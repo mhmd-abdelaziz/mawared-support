@@ -1,3 +1,13 @@
+export interface ThemeColors {
+  text: string;
+  tint: string;
+  icon: string;
+  background: string;
+  secBackground: string;
+  tabIconDefault: string;
+  tabIconSelected: string;
+}
+
 enum MessageSender {
   SAAS = "saas",
   Contact = "contact",

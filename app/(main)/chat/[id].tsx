@@ -38,6 +38,7 @@ import { ExternalLink } from "@/components";
 import { GET_CHAT } from "@/apollo/queries";
 import * as ImagePicker from "expo-image-picker";
 import { useLocalSearchParams } from "expo-router";
+import useThemeColors from "@/hooks/useThemeColors";
 import { useState, useEffect, useRef } from "react";
 import { ThemedText, ThemedView } from "@/components";
 import * as DocumentPicker from "expo-document-picker";
@@ -108,6 +109,7 @@ const formatMessage = (
 };
 
 const ChatScreen = () => {
+  const themeColors = useThemeColors();
   const theme = useColorScheme() || "light";
   const [isPlaying, setIsPlaying] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
@@ -530,7 +532,7 @@ const ChatScreen = () => {
 
   // Render the message bubble
   const renderBubble = (props: BubbleProps<IMessage>) => {
-    const { text: color, secBackground: backgroundColor } = Colors[theme];
+    const { text: color, secBackground: backgroundColor } = themeColors;
     return (
       <View>
         <Bubble
@@ -568,7 +570,7 @@ const ChatScreen = () => {
   console.log(replyingTo);
 
   const renderInputToolbar = (props: InputToolbarProps<IMessage>) => {
-    const { text: color, secBackground: backgroundColor } = Colors[theme];
+    const { text: color, secBackground: backgroundColor } = themeColors;
     return (
       <View>
         {replyingTo ? (
@@ -768,8 +770,8 @@ const ChatScreen = () => {
         options={{
           headerShown: true,
           title: title as string,
-          headerTintColor: Colors[theme].tint,
-          headerStyle: { backgroundColor: Colors[theme].background },
+          headerTintColor: themeColors.tint,
+          headerStyle: { backgroundColor: themeColors.background },
         }}
       />
       <GiftedChat
