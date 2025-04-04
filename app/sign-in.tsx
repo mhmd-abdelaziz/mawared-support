@@ -13,7 +13,7 @@ import { useAuth } from "@/hooks";
 import { router } from "expo-router";
 import { useMutation } from "@apollo/client";
 import { SIGN_IN } from "@/apollo/mutations";
-import { ThemedText as Text } from "@/components/ThemedText";
+import { ThemedText as Text } from "@/components";
 
 export default function SignIn() {
   const { signIn } = useAuth();

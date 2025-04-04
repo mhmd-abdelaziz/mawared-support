@@ -34,15 +34,14 @@ import {
 import Pusher from "pusher-js";
 import { Audio } from "expo-av";
 import { Stack } from "expo-router";
+import { ExternalLink } from "@/components";
 import { GET_CHAT } from "@/apollo/queries";
 import * as ImagePicker from "expo-image-picker";
 import { useLocalSearchParams } from "expo-router";
 import { useState, useEffect, useRef } from "react";
-import { ThemedView } from "@/components/ThemedView";
-import { ThemedText } from "@/components/ThemedText";
+import { ThemedText, ThemedView } from "@/components";
 import * as DocumentPicker from "expo-document-picker";
 import { useMutation, useQuery } from "@apollo/client";
-import { ExternalLink } from "@/components/ExternalLink";
 import { REPLAY_MESSAGE, SEND_MESSAGE } from "@/apollo/mutations";
 import { MaterialIcons, FontAwesome, Ionicons } from "@expo/vector-icons";
 

@@ -1,6 +1,6 @@
 import { useAuth } from "@/hooks";
+import { ThemedText } from "@/components";
 import { Redirect, Stack } from "expo-router";
-import { ThemedText } from "@/components/ThemedText";
 
 export default function MainLayout() {
   const { token, isLoading } = useAuth();

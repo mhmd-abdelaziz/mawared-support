@@ -9,10 +9,10 @@ import {
 import React from "react";
 import { router } from "expo-router";
 import { useQuery } from "@apollo/client";
+import { ThemedText } from "@/components";
+import { ThemedView } from "@/components";
 import { GET_CHATS } from "@/apollo/queries";
 import { Message, Styles } from "@/constants";
-import { ThemedView } from "@/components/ThemedView";
-import { ThemedText as Text, ThemedText } from "@/components/ThemedText";
 
 const Index = () => {
   const theme = useColorScheme() || "light";
@@ -73,7 +73,7 @@ const Item = ({ item, theme }: Item) => {
       <ThemedView
         style={[styles.chatItem, theme === "dark" && styles.chatItemDark]}
       >
-        <Text type="defaultSemiBold">{item.name}</Text>
+        <ThemedText type="defaultSemiBold">{item.name}</ThemedText>
       </ThemedView>
     </Pressable>
   );
