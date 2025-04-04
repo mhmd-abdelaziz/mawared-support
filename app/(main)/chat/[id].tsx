@@ -184,8 +184,8 @@ const ChatScreen = () => {
   }, []);
 
   useEffect(() => {
-    const pusher = new Pusher(process.env.EXPO_PUBLIC_PUSHER_KEY as string, {
-      cluster: process.env.EXPO_PUBLIC_PUSHER_CLUSTER as string,
+    const pusher = new Pusher(process.env.PUSHER_KEY as string, {
+      cluster: process.env.PUSHER_CLUSTER as string,
     });
 
     const channel = pusher.subscribe(`chat_${companyContactId}`);
