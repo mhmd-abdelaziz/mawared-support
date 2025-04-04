@@ -24,13 +24,6 @@ import {
   InputToolbarProps,
   IMessage as GiftedChatMessage,
 } from "react-native-gifted-chat";
-import {
-  Colors,
-  Styles,
-  Message,
-  MessageSender,
-  MessageStatus,
-} from "@/constants";
 import Pusher from "pusher-js";
 import { Audio } from "expo-av";
 import { Stack } from "expo-router";
@@ -46,6 +39,7 @@ import * as DocumentPicker from "expo-document-picker";
 import { useMutation, useQuery } from "@apollo/client";
 import { REPLAY_MESSAGE, SEND_MESSAGE } from "@/apollo/mutations";
 import { MaterialIcons, FontAwesome, Ionicons } from "@expo/vector-icons";
+import { Message, Configs, MessageSender, MessageStatus } from "@/constants";
 
 interface IMessage extends GiftedChatMessage {
   id: string;
@@ -186,13 +180,12 @@ const ChatScreen = () => {
   }, []);
 
   useEffect(() => {
-    const pusher = new Pusher(process.env.PUSHER_KEY as string, {
-      cluster: process.env.PUSHER_CLUSTER as string,
+    const pusher = new Pusher(Configs.pusherKey as string, {
+      cluster: Configs.pusherCluster as string,
     });
 
     const channel = pusher.subscribe(`chat_${companyContactId}`);
     channel.bind("my-event", (newMessage: Message) => {
-
       if (!sendLoading || !replyLoading) {
         const isMsgExist = messages?.find(
           (msg) =>
