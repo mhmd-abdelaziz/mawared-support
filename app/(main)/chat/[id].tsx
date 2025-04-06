@@ -6,7 +6,6 @@ import {
   StyleSheet,
   useColorScheme,
   TouchableOpacity,
-  ActivityIndicator,
 } from "react-native";
 import {
   Send,
@@ -24,27 +23,24 @@ import {
   InputToolbarProps,
   IMessage as GiftedChatMessage,
 } from "react-native-gifted-chat";
-import {
-  Colors,
-  Styles,
-  Message,
-  MessageSender,
-  MessageStatus,
-} from "@/constants";
 import Pusher from "pusher-js";
-import { Audio } from "expo-av";
 import { Stack } from "expo-router";
 import { router } from "expo-router";
+import { Audio, Video } from "expo-av";
+import Mime from "react-native-mime-types";
 import { ExternalLink } from "@/components";
 import { GET_CHAT } from "@/apollo/queries";
+import * as FileSystem from "expo-file-system";
 import * as ImagePicker from "expo-image-picker";
 import { useLocalSearchParams } from "expo-router";
+import AudioPlayer from "@/components/AudioPlayer";
 import useThemeColors from "@/hooks/useThemeColors";
 import { useState, useEffect, useRef } from "react";
 import { ThemedText, ThemedView } from "@/components";
 import * as DocumentPicker from "expo-document-picker";
 import { useMutation, useQuery } from "@apollo/client";
 import { REPLAY_MESSAGE, SEND_MESSAGE } from "@/apollo/mutations";
+import { Message, MessageSender, MessageStatus } from "@/constants";
 import { MaterialIcons, FontAwesome, Ionicons } from "@expo/vector-icons";
 
 interface IMessage extends GiftedChatMessage {
@@ -53,6 +49,7 @@ interface IMessage extends GiftedChatMessage {
   file?: string;
   read?: boolean;
   failed?: boolean;
+  mediaBase64?: string;
   w_message_id?: string;
   temp_message_id: string;
   replyTo: IMessage | null;
@@ -108,24 +105,50 @@ const formatMessage = (
         : null),
   };
 };
+const requestMediaPermissionIfNeeded = async () => {
+  const { granted } = await ImagePicker.getMediaLibraryPermissionsAsync();
+
+  if (!granted) {
+    const { granted: justGranted } =
+      await ImagePicker.requestMediaLibraryPermissionsAsync();
+    return justGranted;
+  }
+
+  return true;
+};
+const requestMicrophonePermissionIfNeeded = async () => {
+  const { granted } = await Audio.getPermissionsAsync();
+
+  if (!granted) {
+    const { granted: justGranted } = await Audio.requestPermissionsAsync();
+    return justGranted;
+  }
+
+  return true;
+};
+const formatBase64 = (uri: string, base64: string) => {
+  const extension = uri.split(".").pop();
+  const mimeType = Mime.lookup(extension);
+  return `data:${mimeType};base64,${base64}`;
+};
+const formatTime = (seconds: number) => {
+  const mins = Math.floor(seconds / 60);
+  const secs = Math.floor(seconds % 60);
+  return `${mins}:${secs < 10 ? "0" : ""}${secs}`;
+};
 
 const ChatScreen = () => {
   const themeColors = useThemeColors();
   const theme = useColorScheme() || "light";
-  const [isPlaying, setIsPlaying] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
-  const [loadingAudio, setLoadingAudio] = useState(false);
   const [messages, setMessages] = useState<IMessage[]>([]);
   const playbackTimer = useRef<NodeJS.Timeout | null>(null);
-  const [playbackPosition, setPlaybackPosition] = useState(0);
-  const [playbackDuration, setPlaybackDuration] = useState(0);
   const [sound, setSound] = useState<Audio.Sound | null>(null);
   const [recordingDuration, setRecordingDuration] = useState(0);
   const [sass, setSaas] = useState<{ id: string } | null>(null);
   const { id: companyContactId, title } = useLocalSearchParams();
   const [replyingTo, setReplyingTo] = useState<IMessage | null>(null);
   const [recording, setRecording] = useState<Audio.Recording | null>(null);
-  const [playingMessageId, setPlayingMessageId] = useState<string | null>(null);
   const [recordingTimer, setRecordingTimer] = useState<NodeJS.Timeout | null>(
     null
   );
@@ -138,7 +161,7 @@ const ChatScreen = () => {
     onCompleted: (res) => {
       const messages: Message[] = res.chat.data;
       setMessages(
-        messages.map((message: Message, i) => formatMessage(message, messages))
+        messages.map((message: Message) => formatMessage(message, messages))
       );
       // if (res?.users?.length === 1) {
       setSaas(res?.users[0]);
@@ -149,25 +172,6 @@ const ChatScreen = () => {
   /* ↓ State Effects ↓ */
 
   useEffect(() => {
-    // Request permissions for recording audio
-    (async () => {
-      if (Platform.OS !== "web") {
-        const { status } = await Audio.requestPermissionsAsync();
-        if (status !== "granted") {
-          Alert.alert("Permission to access microphone is required!");
-        }
-      }
-
-      // Configure audio session
-      await Audio.setAudioModeAsync({
-        allowsRecordingIOS: true,
-        playsInSilentModeIOS: true,
-        shouldDuckAndroid: true,
-        playThroughEarpieceAndroid: false,
-        staysActiveInBackground: true,
-      });
-    })();
-
     // Cleanup function for audio recording/playback
     return () => {
       if (recording) {
@@ -192,7 +196,6 @@ const ChatScreen = () => {
 
     const channel = pusher.subscribe(`chat_${companyContactId}`);
     channel.bind("my-event", (newMessage: Message) => {
-
       if (!sendLoading || !replyLoading) {
         const isMsgExist = messages?.find(
           (msg) =>
@@ -236,10 +239,10 @@ const ChatScreen = () => {
             saasId: sass?.id as string,
             contactId: companyContactId,
             tempMessageID: newMessages[0]?._id,
-            content: newMessages[0]?.text || null,
-            // ...(newMessages[0]?.file && { media: newMessages[0]?.file }),
-            // ...(newMessages[0]?.audio && { media: newMessages[0]?.audio }),
-            // ...(newMessages[0]?.image && { media: newMessages[0]?.image }),
+            content: newMessages[0]?.text || "",
+            ...(newMessages[0]?.mediaBase64 && {
+              mediaBase64: newMessages[0]?.mediaBase64,
+            }),
           },
         },
         onCompleted: ({ sendMessage }) => {
@@ -269,9 +272,9 @@ const ChatScreen = () => {
             senderId: sass?.id,
             content: newMessages[0]?.text || null,
             messageId: replyingTo?.id as string,
-            // ...(newMessages[0]?.file && { media: newMessages[0]?.file }),
-            // ...(newMessages[0]?.audio && { media: newMessages[0]?.audio }),
-            // ...(newMessages[0]?.image && { media: newMessages[0]?.image }),
+            ...(newMessages[0]?.mediaBase64 && {
+              mediaBase64: newMessages[0]?.mediaBase64,
+            }),
           },
         },
         onCompleted: ({ replyOnMessage }) => {
@@ -304,6 +307,23 @@ const ChatScreen = () => {
 
   // Handle recording voice notes
   const startRecording = async () => {
+    if (Platform.OS !== "web") {
+      const hasPermission = await requestMicrophonePermissionIfNeeded();
+      if (!hasPermission) {
+        alert("Microphone permission is required to record audio.");
+        return;
+      }
+    }
+
+    // Configure audio session
+    await Audio.setAudioModeAsync({
+      allowsRecordingIOS: true,
+      playsInSilentModeIOS: true,
+      shouldDuckAndroid: true,
+      playThroughEarpieceAndroid: false,
+      staysActiveInBackground: true,
+    });
+
     try {
       // Reset recording duration
       setRecordingDuration(0);
@@ -313,8 +333,6 @@ const ChatScreen = () => {
         await sound.stopAsync();
         await sound.unloadAsync();
         setSound(null);
-        setIsPlaying(false);
-        setPlayingMessageId(null);
         if (playbackTimer.current) {
           clearInterval(playbackTimer.current);
           playbackTimer.current = null;
@@ -358,12 +376,17 @@ const ChatScreen = () => {
 
       // Only send voice note if recording duration is greater than 1 second
       if (uri && recordingDuration >= 1) {
+        const mediaBase64 = await FileSystem.readAsStringAsync(uri, {
+          encoding: FileSystem.EncodingType.Base64,
+        });
+
         const message = {
-          _id: Math.round(Math.random() * 1000000),
-          audio: uri,
+          _id: String(Math.random() * 1000000),
           createdAt: new Date(),
+          audio: uri,
+          mediaBase64: formatBase64(uri, mediaBase64),
           user: {
-            _id: 1,
+            _id: sass?.id,
           },
           duration: recordingDuration,
         };
@@ -386,94 +409,6 @@ const ChatScreen = () => {
     setRecordingDuration(0);
   };
 
-  // Handle playing voice notes
-  const playSound = async (uri: string, messageId: string) => {
-    try {
-      // If already playing this message, toggle pause/play
-      if (isPlaying && playingMessageId === messageId && sound) {
-        await sound.pauseAsync();
-        setIsPlaying(false);
-        if (playbackTimer.current) {
-          clearInterval(playbackTimer.current);
-          playbackTimer.current = null;
-        }
-        return;
-      }
-
-      // If playing a different message, stop current playback
-      if (sound) {
-        await sound.stopAsync();
-        await sound.unloadAsync();
-        setSound(null);
-        setIsPlaying(false);
-        setPlayingMessageId(null);
-        if (playbackTimer.current) {
-          clearInterval(playbackTimer.current);
-          playbackTimer.current = null;
-        }
-      }
-
-      setLoadingAudio(true);
-      setPlayingMessageId(messageId);
-
-      // Load and play the new audio
-      const { sound: newSound } = await Audio.Sound.createAsync(
-        { uri },
-        { shouldPlay: true },
-        onPlaybackStatusUpdate
-      );
-
-      setSound(newSound);
-      setIsPlaying(true);
-      setLoadingAudio(false);
-
-      // Start timer to update playback position
-      playbackTimer.current = setInterval(() => {
-        if (sound) {
-          sound.getStatusAsync().then((status) => {
-            if (status.isLoaded) {
-              setPlaybackPosition(status.positionMillis / 1000);
-            }
-          });
-        }
-      }, 100);
-
-      // Set up completion listener
-      newSound.setOnPlaybackStatusUpdate((status) => {
-        if (status.isLoaded && status.didJustFinish) {
-          setIsPlaying(false);
-          setPlayingMessageId(null);
-          setPlaybackPosition(0);
-          if (playbackTimer.current) {
-            clearInterval(playbackTimer.current);
-            playbackTimer.current = null;
-          }
-        }
-      });
-    } catch (err) {
-      console.error("Failed to play sound", err);
-      Alert.alert("Error", "Failed to play voice note");
-      setLoadingAudio(false);
-      setIsPlaying(false);
-      setPlayingMessageId(null);
-    }
-  };
-
-  // Handle audio playback status updates
-  const onPlaybackStatusUpdate = (status) => {
-    if (status.isLoaded) {
-      setPlaybackDuration(status.durationMillis / 1000);
-      setPlaybackPosition(status.positionMillis / 1000);
-    }
-  };
-
-  // Format time in seconds to mm:ss
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = Math.floor(seconds % 60);
-    return `${mins}:${secs < 10 ? "0" : ""}${secs}`;
-  };
-
   // Handle picking documents
   const pickDocument = async () => {
     try {
@@ -482,18 +417,23 @@ const ChatScreen = () => {
         copyToCacheDirectory: true,
       });
 
-      if (result.type === "success") {
+      if (!result.canceled) {
+        const mediaBase64 = await FileSystem.readAsStringAsync(
+          result?.assets[0].uri,
+          { encoding: FileSystem.EncodingType.Base64 }
+        );
+
         const message = {
-          _id: Math.round(Math.random() * 1000000),
-          text: `Shared file: ${result.name}`,
+          _id: String(Math.random() * 1000000),
           createdAt: new Date(),
+          mediaBase64: formatBase64(result.assets[0].uri, mediaBase64),
           user: {
-            _id: 1,
+            _id: sass?.id,
           },
           file: {
-            uri: result.uri,
-            name: result.name,
-            type: result.mimeType,
+            uri: result?.assets[0].uri,
+            name: result?.assets[0].name,
+            type: result?.assets[0].mimeType,
           },
         };
         onSend([message]);
@@ -506,17 +446,28 @@ const ChatScreen = () => {
   // Handle picking images
   const pickImage = async () => {
     try {
-      const result = await ImagePicker.launchImageLibraryAsync({
+      // Ask for permission
+      const hasPermission = await requestMediaPermissionIfNeeded();
+      if (!hasPermission) {
+        alert("Permission to access media library is required!");
+        return;
+      }
+
+      // Launch the image picker
+      let result = await ImagePicker.launchImageLibraryAsync({
+        base64: true,
+        quality: 0.7,
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsEditing: true,
-        aspect: [4, 3],
-        quality: 1,
       });
 
       if (!result.canceled) {
         const message = {
-          _id: Math.round(Math.random() * 1000000),
+          _id: String(Math.random() * 1000000),
           image: result.assets[0].uri,
+          mediaBase64: formatBase64(
+            result.assets[0].uri as string,
+            result.assets[0].base64 as string
+          ),
           createdAt: new Date(),
           user: {
             _id: sass?.id as string,
@@ -646,63 +597,23 @@ const ChatScreen = () => {
   const renderMessageAudio = (props: MessageAudioProps<IMessage>) => {
     const { currentMessage } = props;
     if (currentMessage.audio) {
-      const isCurrentlyPlaying = playingMessageId === currentMessage._id;
-      const progressPercentage =
-        isCurrentlyPlaying && playbackDuration > 0
-          ? (playbackPosition / playbackDuration) * 100
-          : 0;
+      return <AudioPlayer uri={currentMessage.audio} />;
+    }
+    return null;
+  };
 
+  const renderMessageVideo = (props: BubbleProps<IMessage>) => {
+    const { currentMessage } = props;
+    if (currentMessage.video) {
       return (
-        <TouchableOpacity
-          disabled={loadingAudio}
-          style={styles.audioContainer}
-          onPress={() => playSound(currentMessage.audio, currentMessage._id)}
-        >
-          {loadingAudio && isCurrentlyPlaying ? (
-            <ActivityIndicator size="small" color="#0084FF" />
-          ) : (
-            <FontAwesome
-              name={isCurrentlyPlaying && isPlaying ? "pause" : "play"}
-              size={20}
-              color="#0084FF"
-            />
-          )}
-
-          <View style={styles.audioWaveformContainer}>
-            <View style={styles.audioWaveform}>
-              <View
-                style={[
-                  styles.audioWaveformProgress,
-                  { width: `${progressPercentage}%` },
-                ]}
-              />
-              <View style={styles.audioWaveformBars}>
-                {[...Array(15)].map((_, index) => (
-                  <View
-                    key={index}
-                    style={[
-                      styles.audioWave,
-                      {
-                        height: 6 + Math.random() * 12,
-                        backgroundColor:
-                          progressPercentage > (index / 15) * 100
-                            ? "#0084FF"
-                            : "#B0B0B0",
-                      },
-                    ]}
-                  />
-                ))}
-              </View>
-            </View>
-            <Text style={styles.audioText}>
-              {isCurrentlyPlaying && isPlaying
-                ? `${formatTime(playbackPosition)} / ${formatTime(
-                    playbackDuration
-                  )}`
-                : `Voice note (${formatTime(currentMessage.duration || 0)})`}
-            </Text>
-          </View>
-        </TouchableOpacity>
+        <View style={styles.videoContainer}>
+          <Video
+            useNativeControls
+            shouldPlay={false}
+            style={styles.video}
+            source={{ uri: currentMessage.video }}
+          />
+        </View>
       );
     }
     return null;
@@ -748,6 +659,10 @@ const ChatScreen = () => {
             ? renderMessageAudio({ currentMessage: currentMessage.replyTo })
             : null}
 
+          {currentMessage.replyTo.video
+            ? renderMessageVideo({ currentMessage: currentMessage.replyTo })
+            : null}
+
           {currentMessage.replyTo.text ? (
             <View style={styles.replyContainer}>
               <Text style={styles.replyText}>
@@ -790,6 +705,7 @@ const ChatScreen = () => {
         user={{ _id: sass?.id as string }}
         renderCustomView={renderCustomView}
         renderMessageAudio={renderMessageAudio}
+        renderMessageVideo={renderMessageVideo}
         renderInputToolbar={renderInputToolbar}
       />
     </ThemedView>
@@ -813,53 +729,6 @@ const styles = StyleSheet.create({
     color: "red",
     fontSize: 12,
   },
-  audioContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    padding: 10,
-    backgroundColor: "#f2f2f2",
-    borderRadius: 10,
-    marginBottom: 5,
-    minWidth: 200,
-  },
-  audioWaveformContainer: {
-    flex: 1,
-    marginLeft: 10,
-  },
-  audioWaveform: {
-    position: "relative",
-    height: 24,
-    marginBottom: 5,
-  },
-  audioWaveformBars: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    height: 24,
-    width: "100%",
-    position: "absolute",
-    top: 0,
-    zIndex: 2,
-  },
-  audioWaveformProgress: {
-    top: 0,
-    left: 0,
-    zIndex: 1,
-    height: "100%",
-    borderRadius: 4,
-    position: "absolute",
-    backgroundColor: "rgba(0, 132, 255, 0.2)",
-  },
-  audioWave: {
-    width: 3,
-    borderRadius: 1,
-    marginHorizontal: 2,
-    backgroundColor: "#B0B0B0",
-  },
-  audioText: {
-    color: "#555",
-    fontSize: 12,
-  },
   fileContainer: {
     padding: 10,
     marginBottom: 5,
@@ -867,6 +736,16 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "#f2f2f2",
+  },
+  videoContainer: {
+    marginBottom: 10,
+    borderRadius: 10,
+    overflow: "hidden",
+    backgroundColor: "#f2f2f2",
+  },
+  video: {
+    width: 250,
+    height: 140,
   },
   replyContainer: {
     padding: 4,

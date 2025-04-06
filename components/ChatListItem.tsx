@@ -2,7 +2,7 @@ import React from "react";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { Pressable, StyleSheet } from "react-native";
-import { ThemedView, ThemedText } from "@/components";
+import { ThemedView, ThemedText } from "@/components/shared";
 
 type Item = {
   name: string;
