@@ -39,6 +39,7 @@ export default function StartChatLayout() {
     <>
       <Stack.Screen
         options={{
+          animation: "none",
           headerShown: true,
           title: "Start a Chat",
           headerTintColor: themeColors.tint,

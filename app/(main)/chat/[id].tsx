@@ -374,7 +374,7 @@ const ChatScreen = () => {
       setRecordingTimer(timer);
     } catch (err) {
       console.error("Failed to start recording", err);
-      Alert.alert("Error", "Failed to start recording");
+      // Alert.alert("Error", "Failed to start recording");
     }
   };
 
@@ -422,7 +422,7 @@ const ChatScreen = () => {
       }
     } catch (err) {
       console.error("Failed to stop recording", err);
-      Alert.alert("Error", "Failed to process voice recording");
+      // Alert.alert("Error", JSON.stringify(err));
     }
 
     // Reset recording duration
@@ -794,6 +794,7 @@ const ChatScreen = () => {
     <ThemedView style={{ flex: 1 }}>
       <Stack.Screen
         options={{
+          animation: "none",
           headerShown: true,
           title: title as string,
           headerTintColor: themeColors.tint,
