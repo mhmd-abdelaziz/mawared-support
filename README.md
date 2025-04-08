@@ -79,4 +79,4 @@ npm run install
 
 - `yarn start` _OR_ `npm run start`: Runs the app in the development mode.
 - `yarn build` _OR_ `npm run build`: Builds the app for production to the `dist` folder.
-- `yarn preview` _OR_ `npm run preview`: Runs the app in the production mode.
+- `yarn update` _OR_ `npm run update`: Push updates.

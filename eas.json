@@ -19,6 +19,11 @@
       "autoIncrement": true,
       "android": {
         "buildType": "apk"
+      },
+      "env": {
+        "EXPO_PUBLIC_API_URL": "@EXPO_PUBLIC_API_URL",
+        "PUSHER_CLUSTER": "@PUSHER_CLUSTER",
+        "PUSHER_KEY": "@PUSHER_KEY"
       }
     }
   },

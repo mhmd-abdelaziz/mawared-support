@@ -1,6 +1,7 @@
 export * from "./Types";
 export * from "./Colors";
 export * from "./Styles";
+export { default as Configs } from "./Configs";
 
 export const TOKEN_KEY = "auth_token";
 
