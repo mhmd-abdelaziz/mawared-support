@@ -24,6 +24,13 @@ import {
   IMessage as GiftedChatMessage,
 } from "react-native-gifted-chat";
 import {
+  Configs,
+  Message,
+  MessageSender,
+  MessageStatus,
+  MessageTemplate,
+} from "@/constants";
+import {
   SEND_MESSAGE,
   SEND_TEMPLATE,
   REPLAY_MESSAGE,
@@ -38,20 +45,13 @@ import * as ImagePicker from "expo-image-picker";
 import { useLocalSearchParams } from "expo-router";
 import useThemeColors from "@/hooks/useThemeColors";
 import { useState, useEffect, useRef } from "react";
-import { ThemedText, ThemedView } from "@/components";
 import { Picker } from "@react-native-picker/picker";
 import * as DocumentPicker from "expo-document-picker";
 import { useMutation, useQuery } from "@apollo/client";
 import { ExternalLink, AudioPlayer } from "@/components";
 import { GET_CHAT, GET_TEMPLATES } from "@/apollo/queries";
+import { SettingsModal, ThemedText, ThemedView } from "@/components";
 import { MaterialIcons, FontAwesome, Ionicons } from "@expo/vector-icons";
-import {
-  Configs,
-  Message,
-  MessageSender,
-  MessageStatus,
-  MessageTemplate,
-} from "@/constants";
 
 interface IMessage extends GiftedChatMessage {
   id: string;
@@ -156,8 +156,9 @@ const ChatScreen = () => {
   const playbackTimer = useRef<NodeJS.Timeout | null>(null);
   const [sound, setSound] = useState<Audio.Sound | null>(null);
   const [recordingDuration, setRecordingDuration] = useState(0);
-  const [sass, setSaas] = useState<{ id: string } | null>(null);
+  const [sass, setSass] = useState<{ id: string } | null>(null);
   const { id: companyContactId, title } = useLocalSearchParams();
+  const [isSettingsVisible, setIsSettingsVisible] = useState(false);
   const [replyingTo, setReplyingTo] = useState<IMessage | null>(null);
   const [recording, setRecording] = useState<Audio.Recording | null>(null);
   const [selectedTemplate, setSelectedTemplate] =
@@ -171,16 +172,14 @@ const ChatScreen = () => {
   const [replyMessage, { loading: replyLoading }] = useMutation(REPLAY_MESSAGE);
   const [sendTemplate, { loading: sendTemplateLoading }] =
     useMutation(SEND_TEMPLATE);
-  const { data: res, loading } = useQuery(GET_CHAT, {
+  const { data: res } = useQuery(GET_CHAT, {
     variables: { companyContactId },
     onCompleted: (res) => {
       const messages: Message[] = res.chat.data;
       setMessages(
         messages.map((message: Message) => formatMessage(message, messages))
       );
-      // if (res?.users?.length === 1) {
-      setSaas(res?.users[0]);
-      // }
+      setSass(res?.users[0]);
     },
   });
   const { data: templatesData } = useQuery(GET_TEMPLATES, {
@@ -807,6 +806,17 @@ const ChatScreen = () => {
               <Ionicons name="arrow-back" size={24} color="#0084FF" />
             </TouchableOpacity>
           ),
+          headerRight:
+            res?.users?.length > 1
+              ? () => (
+                  <TouchableOpacity
+                    style={{ alignSelf: "flex-end" }}
+                    onPress={() => setIsSettingsVisible(true)}
+                  >
+                    <Ionicons size={24} name="settings" color="#0084FF" />
+                  </TouchableOpacity>
+                )
+              : undefined,
         }}
       />
       <GiftedChat
@@ -821,6 +831,14 @@ const ChatScreen = () => {
         renderMessageAudio={renderMessageAudio}
         renderMessageVideo={renderMessageVideo}
         renderInputToolbar={renderInputToolbar}
+      />
+
+      <SettingsModal
+        sass={sass}
+        setSass={setSass}
+        visible={isSettingsVisible}
+        sassOptions={res?.users || []}
+        onClose={() => setIsSettingsVisible(false)}
       />
     </ThemedView>
   );
