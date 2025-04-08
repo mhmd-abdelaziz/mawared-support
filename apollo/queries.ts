@@ -2,8 +2,16 @@ import { gql } from "@apollo/client";
 import { MESSAGE, PAGINATOR_FRAGMENT } from "./fragments";
 
 export const GET_CHATS = gql`
-  query getChats($page: Int, $first: Int!) {
-    chats: whatsAppMessagesPerCompanyList(page: $page, first: $first) {
+  query getChats(
+    $page: Int
+    $first: Int!
+    $input: FilterWhatsAppMessagesPerCompanyList
+  ) {
+    chats: whatsAppMessagesPerCompanyList(
+      page: $page
+      first: $first
+      input: $input
+    ) {
       data {
         id
         name
@@ -47,6 +55,15 @@ export const GET_CONTACTS = gql`
         id
         phone
       }
+    }
+  }
+`;
+
+export const GET_CHATS_CONTACTS_LIST_FILTERS_OPTIONS = gql`
+  query getChatsContactsListFiltersOptions {
+    companies: saasCompaniesMenu {
+      id
+      name
     }
   }
 `;

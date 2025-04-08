@@ -3,6 +3,7 @@ import {
   ThemedView,
   ChatListItem,
   FloatingButton,
+  ChatsContactsListFilters,
 } from "@/components";
 import React from "react";
 import { useAuth } from "@/hooks";
@@ -13,12 +14,24 @@ import { GET_CHATS } from "@/apollo/queries";
 import { Ionicons } from "@expo/vector-icons";
 import { View, FlatList, TouchableOpacity } from "react-native";
 
+const sendFilters = (filters: any) => {
+  return {
+    page: 1,
+    input: {
+      companyIds:
+        filters?.company !== "all" ? [filters?.company?.id] : undefined,
+    },
+  };
+};
+
 const Index = () => {
   const { signOut } = useAuth();
+  const [filters, setFilters] = React.useState({ company: 'all' });
   const { data, loading, refetch } = useQuery(GET_CHATS, {
     notifyOnNetworkStatusChange: true,
     variables: {
       first: 9999,
+      ...sendFilters(filters),
     },
   });
 
@@ -44,10 +57,12 @@ const Index = () => {
         </TouchableOpacity>
       </View>
       <ThemedView style={Styles.screen}>
+        <ChatsContactsListFilters filters={filters} setFilters={setFilters} />
         <FlatList
           data={chats}
           onRefresh={refetch}
           refreshing={loading}
+          style={{ marginTop: 10 }}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => <ChatListItem item={item} />}
         />
