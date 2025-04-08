@@ -26,6 +26,15 @@ export const SIGN_IN = gql`
   ${AUTH_FRAGMENT}
 `;
 
+export const SEND_TEMPLATE = gql`
+  mutation sendMessage($input: SenderAsTemplateDataInput) {
+    sendMessageViaTemplate(input: $input) {
+      ...message
+    }
+  }
+  ${MESSAGE}
+`;
+
 export const SEND_MESSAGE = gql`
   mutation sendMessage($input: SenderDataInput) {
     sendMessage(input: $input) {

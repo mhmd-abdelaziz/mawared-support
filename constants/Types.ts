@@ -35,3 +35,10 @@ export interface Message {
   message_parent_id: string;
   company_contact_id: string;
 }
+
+export interface MessageTemplate {
+  id: string;
+  name: string;
+  content: string;
+  language: string;
+}

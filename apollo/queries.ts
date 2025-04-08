@@ -2,12 +2,8 @@ import { gql } from "@apollo/client";
 import { MESSAGE, PAGINATOR_FRAGMENT } from "./fragments";
 
 export const GET_CHATS = gql`
-  query getChats($page: Int, $first: Int!, $companyId: ID) {
-    chats: whatsAppMessagesPerCompanyList(
-      page: $page
-      first: $first
-      companyId: $companyId
-    ) {
+  query getChats($page: Int, $first: Int!) {
+    chats: whatsAppMessagesPerCompanyList(page: $page, first: $first) {
       data {
         id
         name
@@ -29,6 +25,7 @@ export const GET_CHAT = gql`
       type: private
       companyContactId: $companyContactId
     ) {
+      canSend
       hasMorePage
       data {
         ...message
@@ -50,6 +47,16 @@ export const GET_CONTACTS = gql`
         id
         phone
       }
+    }
+  }
+`;
+
+export const GET_TEMPLATES = gql`
+  query whatsAppTemplates {
+    whatsAppTemplates {
+      id
+      name
+      content
     }
   }
 `;

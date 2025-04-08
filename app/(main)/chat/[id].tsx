@@ -23,25 +23,35 @@ import {
   InputToolbarProps,
   IMessage as GiftedChatMessage,
 } from "react-native-gifted-chat";
+import {
+  SEND_MESSAGE,
+  SEND_TEMPLATE,
+  REPLAY_MESSAGE,
+} from "@/apollo/mutations";
 import Pusher from "pusher-js";
 import { Stack } from "expo-router";
 import { router } from "expo-router";
 import { Audio, Video } from "expo-av";
 import Mime from "react-native-mime-types";
-import { ExternalLink } from "@/components";
-import { GET_CHAT } from "@/apollo/queries";
 import * as FileSystem from "expo-file-system";
 import * as ImagePicker from "expo-image-picker";
 import { useLocalSearchParams } from "expo-router";
-import AudioPlayer from "@/components/AudioPlayer";
 import useThemeColors from "@/hooks/useThemeColors";
 import { useState, useEffect, useRef } from "react";
 import { ThemedText, ThemedView } from "@/components";
+import { Picker } from "@react-native-picker/picker";
 import * as DocumentPicker from "expo-document-picker";
 import { useMutation, useQuery } from "@apollo/client";
-import { REPLAY_MESSAGE, SEND_MESSAGE } from "@/apollo/mutations";
-import { Message, MessageSender, MessageStatus } from "@/constants";
+import { ExternalLink, AudioPlayer } from "@/components";
+import { GET_CHAT, GET_TEMPLATES } from "@/apollo/queries";
 import { MaterialIcons, FontAwesome, Ionicons } from "@expo/vector-icons";
+import {
+  Configs,
+  Message,
+  MessageSender,
+  MessageStatus,
+  MessageTemplate,
+} from "@/constants";
 
 interface IMessage extends GiftedChatMessage {
   id: string;
@@ -138,6 +148,7 @@ const formatTime = (seconds: number) => {
 };
 
 const ChatScreen = () => {
+  const videoRef = useRef<Video>(null);
   const themeColors = useThemeColors();
   const theme = useColorScheme() || "light";
   const [isRecording, setIsRecording] = useState(false);
@@ -149,6 +160,8 @@ const ChatScreen = () => {
   const { id: companyContactId, title } = useLocalSearchParams();
   const [replyingTo, setReplyingTo] = useState<IMessage | null>(null);
   const [recording, setRecording] = useState<Audio.Recording | null>(null);
+  const [selectedTemplate, setSelectedTemplate] =
+    useState<MessageTemplate | null>(null);
   const [recordingTimer, setRecordingTimer] = useState<NodeJS.Timeout | null>(
     null
   );
@@ -156,6 +169,8 @@ const ChatScreen = () => {
   // Server State
   const [sendMessage, { loading: sendLoading }] = useMutation(SEND_MESSAGE);
   const [replyMessage, { loading: replyLoading }] = useMutation(REPLAY_MESSAGE);
+  const [sendTemplate, { loading: sendTemplateLoading }] =
+    useMutation(SEND_TEMPLATE);
   const { data: res, loading } = useQuery(GET_CHAT, {
     variables: { companyContactId },
     onCompleted: (res) => {
@@ -168,6 +183,12 @@ const ChatScreen = () => {
       // }
     },
   });
+  const { data: templatesData } = useQuery(GET_TEMPLATES, {
+    skip: res?.chat?.canSend,
+  });
+
+  // Constants
+  const showTemplates = res && !res?.chat?.canSend;
 
   /* ↓ State Effects ↓ */
 
@@ -190,13 +211,13 @@ const ChatScreen = () => {
   }, []);
 
   useEffect(() => {
-    const pusher = new Pusher(process.env.PUSHER_KEY as string, {
-      cluster: process.env.PUSHER_CLUSTER as string,
+    const pusher = new Pusher(Configs.pusherKey as string, {
+      cluster: Configs.pusherCluster as string,
     });
 
     const channel = pusher.subscribe(`chat_${companyContactId}`);
     channel.bind("my-event", (newMessage: Message) => {
-      if (!sendLoading || !replyLoading) {
+      if (!sendLoading || !replyLoading || !sendTemplateLoading) {
         const isMsgExist = messages?.find(
           (msg) =>
             msg?.w_message_id === newMessage?.w_message_id ||
@@ -539,9 +560,37 @@ const ChatScreen = () => {
         <InputToolbar
           {...props}
           containerStyle={{ backgroundColor }}
-          renderComposer={(composerProps) => (
-            <Composer {...composerProps} textInputStyle={{ color }} />
-          )}
+          renderComposer={(composerProps) => {
+            if (showTemplates) {
+              return (
+                <ThemedView style={styles.templatePicker}>
+                  <Picker
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      color: themeColors.text,
+                      backgroundColor: "inherit",
+                    }}
+                    selectedValue={selectedTemplate}
+                    onValueChange={(value) => setSelectedTemplate(value)}
+                  >
+                    <Picker.Item label="Select a template..." value={null} />
+                    {templatesData?.whatsAppTemplates.map(
+                      (template: { id: string; name: string }) => (
+                        <Picker.Item
+                          value={template}
+                          key={template.id}
+                          label={template.name}
+                        />
+                      )
+                    )}
+                  </Picker>
+                </ThemedView>
+              );
+            } else {
+              return <Composer {...composerProps} textInputStyle={{ color }} />;
+            }
+          }}
         />
       </View>
     );
@@ -549,6 +598,7 @@ const ChatScreen = () => {
 
   // Render custom actions
   const renderActions = (props: ActionsProps) => {
+    if (showTemplates) return <></>;
     return (
       <Actions
         {...props}
@@ -583,7 +633,65 @@ const ChatScreen = () => {
     );
   };
 
+  const handleSendTemplate = () => {
+    if (selectedTemplate) {
+      const newMessages = [
+        {
+          _id: String(Math.random() * 1000000),
+          createdAt: new Date(),
+          text: selectedTemplate?.content,
+          user: {
+            _id: sass?.id,
+          },
+        },
+      ];
+      setMessages((previousMessages) =>
+        GiftedChat.append(previousMessages, newMessages)
+      );
+      sendTemplate({
+        variables: {
+          input: {
+            saasId: sass?.id as string,
+            contactId: companyContactId,
+            templateId: selectedTemplate.id,
+            tempMessageID: newMessages[0]?._id,
+          },
+        },
+        onCompleted: ({ sendMessageViaTemplate }) => {
+          setMessages((prev) =>
+            prev.map((msg, idx) =>
+              !idx ? formatMessage(sendMessageViaTemplate as Message) : msg
+            )
+          );
+        },
+        onError: (err) => {
+          Alert.alert(
+            (err?.graphQLErrors?.[0]?.extensions?.reason ||
+              err?.graphQLErrors?.[0]?.message ||
+              err?.message) as string
+          );
+        },
+      });
+    }
+  };
+
   const renderSend = (props: SendProps<IMessage>) => {
+    if (showTemplates) {
+      return (
+        <TouchableOpacity
+          onPress={handleSendTemplate}
+          style={{
+            flex: 1,
+            paddingBottom: 14,
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <MaterialIcons name="send" size={20} color="#0084FF" />
+        </TouchableOpacity>
+      );
+    }
+
     return !props?.text?.length ? (
       renderVoiceButton()
     ) : (
@@ -608,10 +716,16 @@ const ChatScreen = () => {
       return (
         <View style={styles.videoContainer}>
           <Video
+            ref={videoRef}
             useNativeControls
             shouldPlay={false}
             style={styles.video}
             source={{ uri: currentMessage.video }}
+            onPlaybackStatusUpdate={async (status) => {
+              if (status.isLoaded && status.didJustFinish) {
+                await videoRef.current?.setPositionAsync(0);
+              }
+            }}
           />
         </View>
       );
@@ -728,6 +842,10 @@ const styles = StyleSheet.create({
     marginLeft: 5,
     color: "red",
     fontSize: 12,
+  },
+  templatePicker: {
+    height: 50,
+    width: "92%",
   },
   fileContainer: {
     padding: 10,
