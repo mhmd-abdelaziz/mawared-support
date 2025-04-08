@@ -1,5 +1,5 @@
-import { Configs, TOKEN_KEY } from "@/constants";
 import { createUploadLink } from "apollo-upload-client";
+import { AuthUser, Configs, TOKEN_KEY } from "@/constants";
 import { from, ApolloClient, InMemoryCache } from "@apollo/client";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { setContext } from "./../node_modules/@apollo/client/link/context";
@@ -64,5 +64,5 @@ export const removeAuthToken = async () => {
 export interface AuthState {
   isAuthenticated: boolean;
   token: string | null;
-  user: any | null;
+  user: AuthUser;
 }

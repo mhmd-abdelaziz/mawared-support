@@ -8,6 +8,8 @@ export interface ThemeColors {
   tabIconSelected: string;
 }
 
+export type AuthUser  = any | null;
+
 enum MessageSender {
   SAAS = "saas",
   Contact = "contact",
