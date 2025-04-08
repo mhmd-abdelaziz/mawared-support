@@ -18,6 +18,7 @@ export const GET_CHATS = gql`
         type
         w_message_id
         company_contact_id
+        unreadCount: unreadMessagesPerContactOfCurrentMessage
       }
       paginatorInfo {
         ...paginator

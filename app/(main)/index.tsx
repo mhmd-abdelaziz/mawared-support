@@ -64,7 +64,7 @@ const Index = () => {
           refreshing={loading}
           style={{ marginTop: 10 }}
           keyExtractor={(item) => item.id}
-          renderItem={({ item }) => <ChatListItem item={item} />}
+          renderItem={({ item }) => <ChatListItem hasUnreadCount item={item} />}
         />
       </ThemedView>
       <FloatingButton
