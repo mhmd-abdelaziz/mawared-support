@@ -17,15 +17,15 @@ import { ThemedText as Text } from "@/components";
 
 export default function SignIn() {
   const { signIn } = useAuth();
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [login, { error, loading: isLoading }] = useMutation(SIGN_IN);
+  const [login, { loading: isLoading }] = useMutation(SIGN_IN);
 
   const handleSignIn = async () => {
     login({
       variables: {
         password,
-        username: email,
+        username,
         device_token: "",
         device_type: Platform.OS,
       },
@@ -39,10 +39,13 @@ export default function SignIn() {
           return Alert.alert("This Phone Number is not verified.");
         }
         if (reason === "email_verification") {
-          Alert.alert("This Email Address is not verified.");
-          return;
+          return Alert.alert("This Email Address is not verified.");
         }
-        Alert.alert(reason as string);
+        Alert.alert(
+          (reason ||
+            error?.graphQLErrors?.[0]?.message ||
+            error?.message) as string
+        );
       },
     });
   };
@@ -51,10 +54,10 @@ export default function SignIn() {
     <View style={styles.container}>
       <View style={styles.header}>
         <Image
+          style={styles.headerImage}
           source={{
             uri: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3",
           }}
-          style={styles.headerImage}
         />
       </View>
 
@@ -68,11 +71,11 @@ export default function SignIn() {
 
         <TextInput
           style={styles.input}
-          placeholder="Email"
-          value={email}
-          onChangeText={setEmail}
+          placeholder="Email or Phone"
+          value={username}
+          onChangeText={setUsername}
           autoCapitalize="none"
-          keyboardType="email-address"
+          // keyboardType="email-address"
           editable={!isLoading}
         />
 
