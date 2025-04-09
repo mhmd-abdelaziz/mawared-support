@@ -14,7 +14,7 @@ type Props = TextInputProps & {
   onChangeText: (text: string) => void;
 };
 
-const SearchInput = ({ value, onChangeText, placeholder, ...props }: Props) => {
+const SearchInput = ({ value, onChangeText, ...props }: Props) => {
   const themesColors = useThemeColors();
   const timeoutRef = React.useRef<NodeJS.Timeout>();
   const [localValue, setLocalValue] = React.useState(value);
