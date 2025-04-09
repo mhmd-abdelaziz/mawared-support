@@ -16,6 +16,8 @@ export const GET_CHATS = gql`
         id
         name
         type
+        content
+        created_time
         w_message_id
         company_contact_id
         unreadCount: unreadMessagesPerContactOfCurrentMessage
