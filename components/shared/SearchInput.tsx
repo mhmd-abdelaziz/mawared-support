@@ -52,9 +52,9 @@ const SearchInput = ({ value, onChangeText, placeholder, ...props }: Props) => {
         {...props}
         value={localValue}
         onChangeText={handleChange}
-        placeholderTextColor="#687076"
         selectionColor={themesColors.text}
         underlineColorAndroid="transparent"
+        placeholderTextColor={themesColors.text}
         style={[styles.input, { color: themesColors.text }]}
       />
       {localValue ? (
@@ -71,13 +71,13 @@ export default SearchInput;
 const styles = StyleSheet.create({
   container: {
     height: 40,
-    padding: 10,
     borderWidth: 1,
     borderRadius: 8,
     marginBottom: 10,
     borderStyle: "solid",
     flexDirection: "row",
     alignItems: "center",
+    paddingHorizontal: 10,
   },
   input: {
     flex: 1,

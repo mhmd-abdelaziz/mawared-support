@@ -14,12 +14,12 @@ import {
   TouchableOpacity,
 } from "react-native";
 import React from "react";
-import { useAuth } from "@/hooks";
 import { router } from "expo-router";
 import { useQuery } from "@apollo/client";
 import { checkPrivileges } from "@/utils";
 import { Ionicons } from "@expo/vector-icons";
 import { Privileges, Styles } from "@/constants";
+import { useAuth, useThemeColors } from "@/hooks";
 import { GET_ANON_CHATS, GET_CHATS } from "@/apollo/queries";
 
 type TabType = "chats" | "anonymous";
@@ -44,6 +44,7 @@ const sendAnonFilters = (filters: any) => {
 
 const Index = () => {
   const { user, signOut } = useAuth();
+  const themeColors = useThemeColors();
   const canViewChats = checkPrivileges({
     user,
     privileges: [
@@ -131,7 +132,14 @@ const Index = () => {
           <TouchableOpacity
             disabled={activeTab === "chats"}
             onPress={() => setActiveTab("chats")}
-            style={[styles.tab, activeTab === "chats" && styles.activeTab]}
+            style={[
+              styles.tab,
+              activeTab === "chats" && {
+                ...styles.activeTab,
+                shadowColor: themeColors.tint,
+                backgroundColor: themeColors.secBackground,
+              },
+            ]}
           >
             <ThemedText
               style={[
@@ -146,7 +154,14 @@ const Index = () => {
           <TouchableOpacity
             disabled={activeTab === "anonymous"}
             onPress={() => setActiveTab("anonymous")}
-            style={[styles.tab, activeTab === "anonymous" && styles.activeTab]}
+            style={[
+              styles.tab,
+              activeTab === "anonymous" && {
+                ...styles.activeTab,
+                shadowColor: themeColors.tint,
+                backgroundColor: themeColors.secBackground,
+              },
+            ]}
           >
             <ThemedText
               style={[
@@ -233,10 +248,8 @@ const styles = StyleSheet.create({
   },
   activeTab: {
     elevation: 2,
-    shadowColor: "#000",
     shadowOpacity: 0.2,
     shadowRadius: 1.41,
-    backgroundColor: "#212121",
     shadowOffset: { width: 0, height: 1 },
   },
   tabText: {

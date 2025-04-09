@@ -1,8 +1,8 @@
 import React from "react";
 import { Ionicons } from "@expo/vector-icons";
+import { ThemedText, ThemedView } from "./shared";
 import useThemeColors from "@/hooks/useThemeColors";
 import { Picker } from "@react-native-picker/picker";
-import { ThemedText, ThemedView } from "@/components";
 import { View, Modal, StyleSheet, TouchableOpacity } from "react-native";
 
 interface SettingsModalProps {
