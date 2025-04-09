@@ -1,7 +1,14 @@
-import { getAuthToken, setAuthToken, removeAuthToken } from "@/apollo/client";
-import React, { createContext, useState, useEffect } from "react";
-import { useRouter, useSegments } from "expo-router";
+import {
+  setAuthUser,
+  getAuthUser,
+  getAuthToken,
+  setAuthToken,
+  removeAuthUser,
+  removeAuthToken,
+} from "@/apollo/client";
 import type { AuthState } from "@/apollo/client";
+import { useRouter, useSegments } from "expo-router";
+import React, { createContext, useState, useEffect } from "react";
 
 interface AuthContextType extends AuthState {
   signIn: (token: string, userData: any) => Promise<void>;
@@ -53,11 +60,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const loadAuthState = async () => {
     try {
       const token = await getAuthToken();
+      const user = await getAuthUser();
       if (token) {
-        // Here you would typically validate the token and fetch user data
         setState({
           token,
-          user: null, // You would set this from your API response
+          user,
           isAuthenticated: true,
         });
       }
@@ -71,6 +78,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signIn = async (token: string, userData: any) => {
     try {
       await setAuthToken(token);
+      await setAuthUser(userData);
       setState({
         token,
         user: userData,
@@ -85,6 +93,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signOut = async () => {
     try {
       await removeAuthToken();
+      await removeAuthUser();
       setState({
         isAuthenticated: false,
         token: null,

@@ -1,7 +1,7 @@
 import { createUploadLink } from "apollo-upload-client";
-import { AuthUser, Configs, TOKEN_KEY } from "@/constants";
 import { from, ApolloClient, InMemoryCache } from "@apollo/client";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { AuthUser, Configs, TOKEN_KEY, AUTH_DATA_KEY } from "@/constants";
 import { setContext } from "./../node_modules/@apollo/client/link/context";
 
 const httpLink = createUploadLink({
@@ -32,7 +32,7 @@ export const client = new ApolloClient({
 });
 
 /*
-  Auth helper functions
+  Auth Token helper functions
 */
 
 export const setAuthToken = async (token: string) => {
@@ -57,6 +57,36 @@ export const removeAuthToken = async () => {
     await AsyncStorage.removeItem(TOKEN_KEY);
   } catch (error) {
     console.error("Error removing auth token:", error);
+  }
+};
+
+/*
+  Auth Data helper functions
+*/
+
+export const setAuthUser = async (user: AuthUser) => {
+  try {
+    await AsyncStorage.setItem(AUTH_DATA_KEY, JSON.stringify(user));
+  } catch (error) {
+    console.error("Error setting auth user:", error);
+  }
+};
+
+export const getAuthUser = async () => {
+  try {
+    const user = await AsyncStorage.getItem(AUTH_DATA_KEY);
+    return JSON.parse(user || "{}");
+  } catch (error) {
+    console.error("Error getting auth user:", error);
+    return null;
+  }
+};
+
+export const removeAuthUser = async () => {
+  try {
+    await AsyncStorage.removeItem(AUTH_DATA_KEY);
+  } catch (error) {
+    console.error("Error removing auth user:", error);
   }
 };
 
