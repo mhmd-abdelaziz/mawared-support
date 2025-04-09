@@ -218,7 +218,7 @@ const Index = () => {
             refreshing={anonLoading}
             style={{ marginTop: 10 }}
             keyExtractor={(item) => item.id}
-            renderItem={({ item }) => <ChatListItem item={item} />}
+            renderItem={({ item }) => <ChatListItem isAnon item={item} />}
             ListEmptyComponent={!anonLoading ? <EmptyListMessage /> : undefined}
           />
         </ThemedView>

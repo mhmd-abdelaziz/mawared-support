@@ -12,18 +12,21 @@ type Item = {
 };
 interface ChatListItemProps {
   item: Item;
+  isAnon?: boolean;
   showIcon?: boolean;
   hasUnreadCount?: boolean;
 }
 
 const ChatListItem: React.FC<ChatListItemProps> = ({
   item,
+  isAnon,
   showIcon,
   hasUnreadCount,
 }) => {
   const router = useRouter();
 
   const handlePress = () => {
+    if (isAnon) return;
     router.push({
       pathname: `/chat/[id]`,
       params: { id: item.company_contact_id, title: item?.name },
@@ -31,7 +34,7 @@ const ChatListItem: React.FC<ChatListItemProps> = ({
   };
 
   return (
-    <Pressable onPress={handlePress}>
+    <Pressable disabled={isAnon} onPress={handlePress}>
       <ThemedView style={styles.chatItem} darkStyles={styles.chatItemDark}>
         <ThemedText type="defaultSemiBold">{item.name}</ThemedText>
         {showIcon ? (
