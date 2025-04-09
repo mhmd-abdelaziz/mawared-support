@@ -46,7 +46,7 @@ const SearchInput = ({ value, onChangeText, ...props }: Props) => {
   };
 
   return (
-    <ThemedView style={[styles.container, { borderColor: themeColors.text }]}>
+    <ThemedView style={[styles.container, { borderColor: themeColors.muted }]}>
       <Ionicons name="search" size={20} color={themeColors.icon} />
       <TextInput
         {...props}
@@ -54,7 +54,7 @@ const SearchInput = ({ value, onChangeText, ...props }: Props) => {
         onChangeText={handleChange}
         selectionColor={themeColors.text}
         underlineColorAndroid="transparent"
-        placeholderTextColor={themeColors.text}
+        placeholderTextColor={themeColors.muted}
         style={[styles.input, { color: themeColors.text }]}
       />
       {localValue ? (
