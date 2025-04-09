@@ -1,10 +1,11 @@
 import {
+  Tabs,
   ThemedText,
   ThemedView,
+  SearchInput,
   ChatListItem,
   FloatingButton,
   ChatsContactsListFilters,
-  SearchInput,
 } from "@/components";
 import {
   View,
@@ -59,15 +60,15 @@ const Index = () => {
       Privileges.VIEW_WHATSAPP_ANONYMOUS_CHATS,
     ],
   });
+  const defaultValue =
+    canViewAnonChats && !canViewChats ? "anonymous" : "chats";
 
   // Local State
+  const [activeTab, setActiveTab] = React.useState<TabType>(defaultValue);
   const [filters, setFilters] = React.useState({
     company: "all",
     anonPhone: "",
   });
-  const [activeTab, setActiveTab] = React.useState<TabType>(
-    canViewAnonChats && !canViewChats ? "anonymous" : "chats"
-  );
 
   // Server State
   const { data, loading, refetch } = useQuery(GET_CHATS, {
@@ -126,81 +127,42 @@ const Index = () => {
         </TouchableOpacity>
       </View>
 
-      {/* Tabs */}
-      {canViewChats && canViewAnonChats ? (
-        <ThemedView style={styles.tabContainer}>
-          <TouchableOpacity
-            disabled={activeTab === "chats"}
-            onPress={() => setActiveTab("chats")}
-            style={[
-              styles.tab,
-              activeTab === "chats" && {
-                ...styles.activeTab,
-                shadowColor: themeColors.tint,
-                backgroundColor: themeColors.surface,
-              },
-            ]}
-          >
-            <ThemedText
-              type="muted"
-              style={activeTab === "chats" && styles.activeTabText}
-            >
-              Chats
-            </ThemedText>
-          </TouchableOpacity>
+      <Tabs
+        defaultValue="chats"
+        onValueChange={(value) => setActiveTab(value as TabType)}
+        styles={{
+          tabStyle: { flex: 1 },
+          panelStyle: Styles.screen,
+          tabsContainerStyle: { flex: 1 },
+        }}
+      >
+        {canViewChats && canViewAnonChats ? (
+          <View style={{ flexDirection: "row" }}>
+            <Tabs.Tab value="chats" title="Chats" />
+            <Tabs.Tab value="anonymous" title="Anonymous" />
+          </View>
+        ) : null}
 
-          <TouchableOpacity
-            disabled={activeTab === "anonymous"}
-            onPress={() => setActiveTab("anonymous")}
-            style={[
-              styles.tab,
-              activeTab === "anonymous" && {
-                ...styles.activeTab,
-                shadowColor: themeColors.tint,
-                backgroundColor: themeColors.surface,
-              },
-            ]}
-          >
-            <ThemedText
-              type="muted"
-              style={activeTab === "anonymous" && styles.activeTabText}
-            >
-              Anonymous
-            </ThemedText>
-          </TouchableOpacity>
-        </ThemedView>
-      ) : null}
+        <Tabs.Panel value="chats">
+          <ChatsContactsListFilters filters={filters} setFilters={setFilters} />
+          <FlatList
+            data={chats}
+            onRefresh={refetch}
+            refreshing={loading}
+            style={{ marginTop: 10 }}
+            keyExtractor={(item) => item.id}
+            ListEmptyComponent={!loading ? <EmptyListMessage /> : undefined}
+            renderItem={({ item }) => (
+              <ChatListItem hasUnreadCount item={item} />
+            )}
+          />
 
-      {/* Companies Chats Panel */}
-      {canViewChats && activeTab === "chats" ? (
-        <>
-          <ThemedView style={Styles.screen}>
-            <ChatsContactsListFilters
-              filters={filters}
-              setFilters={setFilters}
-            />
-            <FlatList
-              data={chats}
-              onRefresh={refetch}
-              refreshing={loading}
-              style={{ marginTop: 10 }}
-              keyExtractor={(item) => item.id}
-              ListEmptyComponent={!loading ? <EmptyListMessage /> : undefined}
-              renderItem={({ item }) => (
-                <ChatListItem hasUnreadCount item={item} />
-              )}
-            />
-          </ThemedView>
           <FloatingButton
             iconName="add"
             onPress={() => router.push("./startChat")}
           />
-        </>
-      ) : null}
-
-      {/* Anonymous Chats Panel */}
-      {canViewAnonChats && activeTab === "anonymous" ? (
-        <ThemedView style={Styles.screen}>
+        </Tabs.Panel>
+        <Tabs.Panel value="anonymous">
           <SearchInput
             value={filters.anonPhone}
             placeholder="Search by phone number"
@@ -217,8 +179,8 @@ const Index = () => {
             renderItem={({ item }) => <ChatListItem isAnon item={item} />}
             ListEmptyComponent={!anonLoading ? <EmptyListMessage /> : undefined}
           />
-        </ThemedView>
-      ) : null}
+        </Tabs.Panel>
+      </Tabs>
     </>
   );
 };
@@ -232,26 +194,6 @@ const EmptyListMessage = () => (
 );
 
 const styles = StyleSheet.create({
-  tabContainer: {
-    paddingBottom: 10,
-    flexDirection: "row",
-  },
-  tab: {
-    flex: 1,
-    borderRadius: 6,
-    paddingVertical: 8,
-    alignItems: "center",
-  },
-  activeTab: {
-    elevation: 2,
-    shadowOpacity: 0.2,
-    shadowRadius: 1.41,
-    shadowOffset: { width: 0, height: 1 },
-  },
-  activeTabText: {
-    color: "#0084FF",
-    fontWeight: "600",
-  },
   emptyContainer: {
     flex: 1,
     paddingTop: 50,

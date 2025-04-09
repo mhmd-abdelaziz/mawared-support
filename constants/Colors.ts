@@ -20,7 +20,6 @@ export const Colors: ColorsType = {
     background: "#fff",
     surface: "#F7F9FA",
     tint: tintColorLight,
-    tabIconSelected: tintColorLight,
   },
   dark: {
     icon: "#9BA1A6",
@@ -29,6 +28,5 @@ export const Colors: ColorsType = {
     surface: "#212121",
     tint: tintColorDark,
     background: "#151718",
-    tabIconSelected: tintColorDark,
   },
 };

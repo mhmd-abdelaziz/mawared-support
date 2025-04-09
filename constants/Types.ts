@@ -5,7 +5,6 @@ export interface ThemeColors {
   muted: string;
   surface: string;
   background: string;
-  tabIconSelected: string;
 }
 
 export type AuthUser  = any | null;
