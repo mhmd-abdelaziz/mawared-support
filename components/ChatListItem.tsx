@@ -1,5 +1,6 @@
 import React from "react";
 import { useRouter } from "expo-router";
+import { useThemeColors } from "@/hooks";
 import { THEME_COLOR } from "@/constants";
 import { Ionicons } from "@expo/vector-icons";
 import { formatToRelativeTime } from "@/utils";
@@ -27,6 +28,7 @@ const ChatListItem: React.FC<ChatListItemProps> = ({
   hasUnreadCount,
 }) => {
   const router = useRouter();
+  const themeColors = useThemeColors();
 
   const handlePress = () => {
     if (isAnon) return;
@@ -42,7 +44,11 @@ const ChatListItem: React.FC<ChatListItemProps> = ({
         <View style={styles.chatContainer}>
           <ThemedText type="defaultSemiBold">{item.name}</ThemedText>
           {showIcon ? (
-            <Ionicons name="chevron-forward" size={20} color="#687076" />
+            <Ionicons
+              size={20}
+              name="chevron-forward"
+              color={themeColors.icon}
+            />
           ) : null}
           {hasUnreadCount && item?.unreadCount ? (
             <ThemedView style={styles.badge}>
@@ -54,10 +60,10 @@ const ChatListItem: React.FC<ChatListItemProps> = ({
         </View>
         {item?.content ? (
           <View style={styles.chatContainer}>
-            <ThemedText numberOfLines={1} style={{ color: "#687076", flex: 1 }}>
+            <ThemedText type="muted" numberOfLines={1} style={{ flex: 1 }}>
               {item.content}
             </ThemedText>
-            <ThemedText style={{ color: "#687076", minWidth: 40 }}>
+            <ThemedText type="muted" style={{ minWidth: 40 }}>
               {formatToRelativeTime(item.created_time)}
             </ThemedText>
           </View>

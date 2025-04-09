@@ -2,9 +2,9 @@ export interface ThemeColors {
   text: string;
   tint: string;
   icon: string;
+  muted: string;
+  surface: string;
   background: string;
-  secBackground: string;
-  tabIconDefault: string;
   tabIconSelected: string;
 }
 

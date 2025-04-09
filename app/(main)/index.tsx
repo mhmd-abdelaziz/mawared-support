@@ -137,15 +137,13 @@ const Index = () => {
               activeTab === "chats" && {
                 ...styles.activeTab,
                 shadowColor: themeColors.tint,
-                backgroundColor: themeColors.secBackground,
+                backgroundColor: themeColors.surface,
               },
             ]}
           >
             <ThemedText
-              style={[
-                styles.tabText,
-                activeTab === "chats" && styles.activeTabText,
-              ]}
+              type="muted"
+              style={activeTab === "chats" && styles.activeTabText}
             >
               Chats
             </ThemedText>
@@ -159,15 +157,13 @@ const Index = () => {
               activeTab === "anonymous" && {
                 ...styles.activeTab,
                 shadowColor: themeColors.tint,
-                backgroundColor: themeColors.secBackground,
+                backgroundColor: themeColors.surface,
               },
             ]}
           >
             <ThemedText
-              style={[
-                styles.tabText,
-                activeTab === "anonymous" && styles.activeTabText,
-              ]}
+              type="muted"
+              style={activeTab === "anonymous" && styles.activeTabText}
             >
               Anonymous
             </ThemedText>
@@ -231,7 +227,7 @@ export default Index;
 
 const EmptyListMessage = () => (
   <ThemedView style={styles.emptyContainer}>
-    <ThemedText style={styles.emptyText}>No chats found</ThemedText>
+    <ThemedText type="muted">No chats found</ThemedText>
   </ThemedView>
 );
 
@@ -252,10 +248,6 @@ const styles = StyleSheet.create({
     shadowRadius: 1.41,
     shadowOffset: { width: 0, height: 1 },
   },
-  tabText: {
-    fontSize: 16,
-    color: "#687076",
-  },
   activeTabText: {
     color: "#0084FF",
     fontWeight: "600",
@@ -265,9 +257,5 @@ const styles = StyleSheet.create({
     paddingTop: 50,
     alignItems: "center",
     justifyContent: "center",
-  },
-  emptyText: {
-    fontSize: 16,
-    color: "#687076",
   },
 });

@@ -502,7 +502,7 @@ const ChatScreen = () => {
 
   // Render the message bubble
   const renderBubble = (props: BubbleProps<IMessage>) => {
-    const { text: color, secBackground: backgroundColor } = themeColors;
+    const { text: color, surface: backgroundColor } = themeColors;
     return (
       <View>
         <Bubble
@@ -539,7 +539,7 @@ const ChatScreen = () => {
   };
 
   const renderInputToolbar = (props: InputToolbarProps<IMessage>) => {
-    const { text: color, secBackground: backgroundColor } = themeColors;
+    const { text: color, surface: backgroundColor } = themeColors;
     return (
       <View>
         {replyingTo ? (

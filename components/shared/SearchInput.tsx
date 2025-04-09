@@ -15,7 +15,7 @@ type Props = TextInputProps & {
 };
 
 const SearchInput = ({ value, onChangeText, ...props }: Props) => {
-  const themesColors = useThemeColors();
+  const themeColors = useThemeColors();
   const timeoutRef = React.useRef<NodeJS.Timeout>();
   const [localValue, setLocalValue] = React.useState(value);
 
@@ -46,20 +46,20 @@ const SearchInput = ({ value, onChangeText, ...props }: Props) => {
   };
 
   return (
-    <ThemedView style={[styles.container, { borderColor: themesColors.text }]}>
-      <Ionicons name="search" size={20} color="#687076" />
+    <ThemedView style={[styles.container, { borderColor: themeColors.text }]}>
+      <Ionicons name="search" size={20} color={themeColors.icon} />
       <TextInput
         {...props}
         value={localValue}
         onChangeText={handleChange}
-        selectionColor={themesColors.text}
+        selectionColor={themeColors.text}
         underlineColorAndroid="transparent"
-        placeholderTextColor={themesColors.text}
-        style={[styles.input, { color: themesColors.text }]}
+        placeholderTextColor={themeColors.text}
+        style={[styles.input, { color: themeColors.text }]}
       />
       {localValue ? (
         <TouchableOpacity onPress={handleClear} style={styles.clearButton}>
-          <Ionicons name="close-circle" size={20} color="#687076" />
+          <Ionicons name="close-circle" size={20} color={themeColors.icon} />
         </TouchableOpacity>
       ) : null}
     </ThemedView>
