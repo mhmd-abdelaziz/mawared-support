@@ -3,11 +3,13 @@ import { Text, type TextProps, StyleSheet } from "react-native";
 import { useThemeColors } from "@/hooks";
 
 export type ThemedTextProps = TextProps & {
+  textCenter?: boolean;
   type?: "default" | "title" | "defaultSemiBold" | "subtitle" | "link";
 };
 
 export default function ThemedText({
   style,
+  textCenter,
   type = "default",
   ...rest
 }: ThemedTextProps) {
@@ -17,6 +19,7 @@ export default function ThemedText({
     <Text
       style={[
         { color: themeColors.text },
+        textCenter ? { textAlign: "center" } : undefined,
         type === "link" ? styles.link : undefined,
         type === "title" ? styles.title : undefined,
         type === "default" ? styles.default : undefined,

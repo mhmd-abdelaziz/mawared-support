@@ -44,7 +44,10 @@ export default ChatsContactsListFilters;
 
 const styles = StyleSheet.create({
   picker: {
+    height: 40,
     width: "100%",
+    borderRadius: 8,
+    paddingHorizontal: 6,
     backgroundColor: "inherit",
   },
 });

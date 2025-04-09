@@ -1,17 +1,37 @@
-import { Link, Stack } from 'expo-router';
-import { StyleSheet } from 'react-native';
-
-import { ThemedText, ThemedView } from '@/components';
+import { useAuth } from "@/hooks";
+import { Styles } from "@/constants";
+import { Ionicons } from "@expo/vector-icons";
+import { ThemedText, ThemedView } from "@/components";
+import { View, StyleSheet, TouchableOpacity } from "react-native";
 
 export default function NotFoundScreen() {
+  const { signOut } = useAuth();
+
   return (
     <>
-      <Stack.Screen options={{ title: 'Oops!' }} />
-      <ThemedView style={styles.container}>
-        <ThemedText type="title">This screen doesn't exist.</ThemedText>
-        <Link href="/" style={styles.link}>
+      {/* Header */}
+      <View
+        style={[
+          Styles.appBar,
+          { justifyContent: "space-between", alignItems: "center" },
+        ]}
+      >
+        <ThemedText type="title" style={{ color: "white" }}>
+          Mawared
+        </ThemedText>
+        <TouchableOpacity onPress={signOut} style={{ padding: 10 }}>
+          <Ionicons name="log-out-outline" size={30} color="white" />
+        </TouchableOpacity>
+      </View>
+
+      {/* Body */}
+      <ThemedView style={[Styles.screen, styles.container]}>
+        <ThemedText textCenter type="title">
+          This screen doesn't exist or don't have a privilege to access.
+        </ThemedText>
+        {/* <Link href="/" style={styles.link}>
           <ThemedText type="link">Go to home screen!</ThemedText>
-        </Link>
+        </Link> */}
       </ThemedView>
     </>
   );
@@ -19,10 +39,8 @@ export default function NotFoundScreen() {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 20,
+    alignItems: "center",
+    justifyContent: "center",
   },
   link: {
     marginTop: 15,

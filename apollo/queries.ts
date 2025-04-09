@@ -28,6 +28,25 @@ export const GET_CHATS = gql`
   ${PAGINATOR_FRAGMENT}
 `;
 
+export const GET_ANON_CHATS = gql`
+  query getChats($page: Int, $first: Int!, $phone: String) {
+    chats: whatsAppUnassignedPhoneList(
+      page: $page
+      first: $first
+      phone: $phone
+    ) {
+      data {
+        id
+        phone
+      }
+      paginatorInfo {
+        ...paginator
+      }
+    }
+  }
+  ${PAGINATOR_FRAGMENT}
+`;
+
 export const GET_CHAT = gql`
   query getChat($companyContactId: ID) {
     chat: whatsAppMessagesBetweenClients(

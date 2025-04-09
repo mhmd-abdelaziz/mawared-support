@@ -1,6 +1,7 @@
-export { default as Loader } from './Loader';
-export { default as ThemedView } from './ThemedView';
-export { default as ThemedText } from './ThemedText';
-export { default as ExternalLink } from './ExternalLink';
-export { default as FloatingButton } from './FloatingButton';
-export { default as ParallaxScrollView } from './ParallaxScrollView';
+export { default as Loader } from "./Loader";
+export { default as ThemedView } from "./ThemedView";
+export { default as ThemedText } from "./ThemedText";
+export { default as SearchInput } from "./SearchInput";
+export { default as ExternalLink } from "./ExternalLink";
+export { default as FloatingButton } from "./FloatingButton";
+export { default as ParallaxScrollView } from "./ParallaxScrollView";
