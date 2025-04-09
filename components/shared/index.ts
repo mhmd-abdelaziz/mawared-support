@@ -1,5 +1,6 @@
 export { default as Tabs } from "./Tabs";
 export { default as Loader } from "./Loader";
+export { default as Select } from "./Select";
 export { default as ThemedView } from "./ThemedView";
 export { default as ThemedText } from "./ThemedText";
 export { default as SearchInput } from "./SearchInput";
