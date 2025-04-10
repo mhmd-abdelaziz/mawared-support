@@ -11,6 +11,7 @@ import {
 } from "react-native";
 import ThemedText from "./ThemedText";
 import ThemedView from "./ThemedView";
+import SearchInput from "./SearchInput";
 import { useThemeColors } from "@/hooks";
 import { Ionicons } from "@expo/vector-icons";
 import React, { useState, useEffect } from "react";
@@ -24,6 +25,7 @@ export interface SelectOption {
 // Define component props
 export interface SelectProps {
   hasIcon?: boolean;
+  searchable?: boolean;
   options: SelectOption[];
   selectedValues: (string | number)[];
   onSelectionChange: (selected: (string | number)[]) => void;
@@ -42,6 +44,7 @@ export interface SelectProps {
 
 const Select: React.FC<SelectProps> = ({
   hasIcon,
+  searchable,
   options = [],
   selectedValues = [],
   onSelectionChange,
@@ -57,10 +60,18 @@ const Select: React.FC<SelectProps> = ({
   optionTextStyle,
 }) => {
   const themeColors = useThemeColors();
+  const [searchQuery, setSearchQuery] = useState<string>("");
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [tempSelectedValues, setTempSelectedValues] = useState<
     (string | number)[]
   >([]);
+
+  const filteredOptions = React.useMemo(() => {
+    if (!searchQuery) return options;
+    return options.filter((option) =>
+      option.label.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [options.length, searchQuery]);
 
   // Initialize temporary selection when modal opens
   useEffect(() => {
@@ -116,7 +127,7 @@ const Select: React.FC<SelectProps> = ({
       );
     }
 
-    const selectedOptions = options.filter((option) =>
+    const selectedOptions = filteredOptions.filter((option) =>
       selectedValues.includes(option.value)
     );
 
@@ -207,8 +218,17 @@ const Select: React.FC<SelectProps> = ({
               </TouchableOpacity>
             </View>
 
+            {searchable && (
+              <SearchInput
+                value={searchQuery}
+                placeholder="Search..."
+                onChangeText={setSearchQuery}
+                containerStyles={{ borderWidth: 0 }}
+              />
+            )}
+
             <ScrollView style={styles.optionsList}>
-              {options.map((item) => (
+              {filteredOptions.map((item) => (
                 <TouchableOpacity
                   key={`${item.value}`}
                   onPress={() => selectItem(item)}

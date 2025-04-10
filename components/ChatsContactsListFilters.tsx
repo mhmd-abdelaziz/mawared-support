@@ -42,6 +42,7 @@ const ChatsContactsListFilters: React.FC<ChatsContactsListFiltersProps> = ({
       <Select
         isMulti
         hasIcon
+        searchable
         maxDisplayValues={2}
         selectedValues={filters.saasIds}
         placeholder="Select account managers..."
