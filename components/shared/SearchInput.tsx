@@ -1,4 +1,5 @@
 import {
+  ViewStyle,
   TextInput,
   StyleSheet,
   TextInputProps,
@@ -11,10 +12,16 @@ import { Ionicons } from "@expo/vector-icons";
 
 type Props = TextInputProps & {
   value: string;
+  containerStyles?: ViewStyle;
   onChangeText: (text: string) => void;
 };
 
-const SearchInput = ({ value, onChangeText, ...props }: Props) => {
+const SearchInput = ({
+  value,
+  onChangeText,
+  containerStyles,
+  ...props
+}: Props) => {
   const themeColors = useThemeColors();
   const timeoutRef = React.useRef<NodeJS.Timeout>();
   const [localValue, setLocalValue] = React.useState(value);
@@ -46,7 +53,13 @@ const SearchInput = ({ value, onChangeText, ...props }: Props) => {
   };
 
   return (
-    <ThemedView style={[styles.container, { borderColor: themeColors.muted }]}>
+    <ThemedView
+      style={[
+        styles.container,
+        { borderColor: themeColors.muted },
+        containerStyles,
+      ]}
+    >
       <Ionicons name="search" size={20} color={themeColors.icon} />
       <TextInput
         {...props}
@@ -82,10 +95,9 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     padding: 0,
-    fontSize: 16,
+    fontSize: 14,
     marginLeft: 8,
     borderWidth: 0,
-    outline: "none",
   },
   clearButton: {
     padding: 4,
