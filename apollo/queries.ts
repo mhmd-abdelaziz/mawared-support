@@ -70,8 +70,16 @@ export const GET_CHAT = gql`
 `;
 
 export const GET_CONTACTS = gql`
-  query getContacts($companyId: ID) {
-    generatedContacts(companyId: $companyId) {
+  query getContacts(
+    $name: String
+    $saasIds: [ID]
+    $companyName: String
+  ) {
+    generatedContacts(
+      name: $name
+      saasIds: $saasIds
+      companyName: $companyName
+    ) {
       name
       contactUser {
         id
@@ -83,10 +91,17 @@ export const GET_CONTACTS = gql`
 
 export const GET_CHATS_CONTACTS_LIST_FILTERS_OPTIONS = gql`
   query getChatsContactsListFiltersOptions {
-    companies: saasCompaniesMenu {
-      id
-      name
+    accountManagers: active_saas_users(first: 9999) {
+      data {
+        id
+        name
+        emp_code
+      }
     }
+    # companies: saasCompaniesMenu {
+    #   id
+    #   name
+    # }
   }
 `;
 

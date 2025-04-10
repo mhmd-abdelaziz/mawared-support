@@ -23,7 +23,9 @@ interface FormattedContact {
 
 const sendFilters = (filters: any) => {
   return {
-    companyId: filters?.company?.id,
+    name: filters?.contactName || undefined,
+    companyName: filters?.companyName || undefined,
+    saasIds: filters?.saasIds?.length ? filters?.saasIds?.map((id: string) => +id) : undefined,
   };
 };
 const formatData = (data: Contact[] | undefined): FormattedContact[] => {
@@ -36,7 +38,11 @@ const formatData = (data: Contact[] | undefined): FormattedContact[] => {
 
 export default function StartChatLayout() {
   const themeColors = useThemeColors();
-  const [filters, setFilters] = React.useState({ company: 'all' });
+  const [filters, setFilters] = React.useState({
+    saasIds: [],
+    companyName: "",
+    contactName: "",
+  });
   const {
     loading,
     refetch,

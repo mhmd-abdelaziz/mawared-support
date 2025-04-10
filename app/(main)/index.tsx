@@ -29,8 +29,9 @@ const sendFilters = (filters: any) => {
   return {
     page: 1,
     input: {
-      companyIds:
-        filters?.company !== "all" ? [filters?.company?.id] : undefined,
+      saasIds: filters?.saasIds || undefined,
+      name: filters?.contactName || undefined,
+      companyName: filters?.companyName || undefined,
     },
   };
 };
@@ -45,7 +46,6 @@ const sendAnonFilters = (filters: any) => {
 
 const Index = () => {
   const { user, signOut } = useAuth();
-  const themeColors = useThemeColors();
   const canViewChats = checkPrivileges({
     user,
     privileges: [
@@ -66,8 +66,10 @@ const Index = () => {
   // Local State
   const [activeTab, setActiveTab] = React.useState<TabType>(defaultValue);
   const [filters, setFilters] = React.useState({
-    company: "all",
+    saasIds: [],
     anonPhone: "",
+    companyName: "",
+    contactName: "",
   });
 
   // Server State

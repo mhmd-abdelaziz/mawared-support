@@ -1,10 +1,11 @@
 import React from "react";
-import { ThemedView } from "./shared";
 import { useThemeColors } from "@/hooks";
 import { useQuery } from "@apollo/client";
-import { StyleSheet } from "react-native";
-import { Picker } from "@react-native-picker/picker";
+import { SearchInput, Select, ThemedView } from "./shared";
 import { GET_CHATS_CONTACTS_LIST_FILTERS_OPTIONS } from "@/apollo/queries";
+
+const formatOption = (options: { id: string; name: string }[]) =>
+  options ? options.map((opt) => ({ label: opt.name, value: opt.id })) : [];
 
 interface ChatsContactsListFiltersProps {
   filters: any;
@@ -25,29 +26,30 @@ const ChatsContactsListFilters: React.FC<ChatsContactsListFiltersProps> = ({
   };
 
   return (
-    <ThemedView>
-      <Picker
-        selectedValue={filters.company}
-        style={[styles.picker, { color: themeColors.text }]}
-        onValueChange={(value) => handleFilterChange("company", value)}
-      >
-        <Picker.Item label="Select a company..." value="all" />
-        {(options?.companies || []).map((opt: { id: string; name: string }) => (
-          <Picker.Item key={opt.id} label={opt.name} value={opt} />
-        ))}
-      </Picker>
+    <ThemedView style={{ gap: 10 }}>
+      <SearchInput
+        value={filters.companyName}
+        placeholder="Search by company name"
+        onChangeText={(text) => handleFilterChange("companyName", text)}
+      />
+
+      <SearchInput
+        value={filters.contactName}
+        placeholder="Search by contact name"
+        onChangeText={(text) => handleFilterChange("contactName", text)}
+      />
+
+      <Select
+        isMulti
+        hasIcon
+        maxDisplayValues={2}
+        selectedValues={filters.saasIds}
+        placeholder="Select account managers..."
+        options={formatOption(options?.accountManagers?.data)}
+        onSelectionChange={(val) => handleFilterChange("saasIds", val)}
+      />
     </ThemedView>
   );
 };
 
 export default ChatsContactsListFilters;
-
-const styles = StyleSheet.create({
-  picker: {
-    padding: 10,
-    width: "100%",
-    borderRadius: 8,
-    paddingHorizontal: 6,
-    backgroundColor: "inherit",
-  },
-});
