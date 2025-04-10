@@ -9,9 +9,9 @@ import { ThemedView, ThemedText } from "@/components/shared";
 
 type Item = {
   name: string;
-  content: string;
-  unreadCount: number;
-  created_time: string;
+  content?: string;
+  unreadCount?: number;
+  created_time?: string;
   company_contact_id: string;
 };
 interface ChatListItemProps {
@@ -64,7 +64,7 @@ const ChatListItem: React.FC<ChatListItemProps> = ({
               {item.content}
             </ThemedText>
             <ThemedText type="muted" style={{ minWidth: 40 }}>
-              {formatToRelativeTime(item.created_time)}
+              {formatToRelativeTime(item.created_time as string)}
             </ThemedText>
           </View>
         ) : null}
